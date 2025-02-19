@@ -1,9 +1,9 @@
 // require ('env').confige({path:'./env'})
 import dotenv from "dotenv"
 
-import mongoose from "mongoose";
-
-import { DB_Name } from "./constent.js";
+// import mongoose from "mongoose";
+import { app   } from "./app.js";
+// import { DB_Name } from "./constent.js";
 import connectDb from "./db/index.js";
 dotenv.config({
  path:"./env"
