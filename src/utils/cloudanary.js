@@ -17,10 +17,13 @@ const UploadOnCloudinary = async (filePath) => {
   console.log("file upload successfuly",
    response.url
   );
+  return response
 
 
  } catch (error) {
-  fs.unlinkSync()
+  fs.unlinkSync(filePath)
+  return null
+
  }
 
 }
@@ -28,6 +31,8 @@ const UploadOnCloudinary = async (filePath) => {
 
 
 
-cloudinary.v2.uploader.upload("/home/my_image.jpg", { upload_preset: "my_preset" }, (error, result) => {
- console.log(result, error);
-});
+// cloudinary.v2.uploader.("/home/my_image.jpg", { upload_preset: "my_preset" }, (error, result) => {
+//  console.log(result, error);
+// });
+
+export { UploadOnCloudinary }
