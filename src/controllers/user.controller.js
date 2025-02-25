@@ -28,10 +28,10 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 
   // Step 1: Get user details from request body
-  const { fullName, email, password, userName } = req.body;
+  const { fullName, email, password, username } = req.body;
 
   // Step 2: Validate fields
-  const fields = [fullName, email, password, userName].map((field) => field?.trim());
+  const fields = [fullName, email, password, username].map((field) => field?.trim());
   console.log("🔍 Trimmed Fields:", fields);
 
   if (fields.some((field) => !field)) {
@@ -39,18 +39,23 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 
   // Step 3: Check if user already exists
-  const userExist = await User.findOne({ $or: [{ email }, { userName }] });
+  const userExist = await User.findOne({ $or: [{ email }, { username }] });
 
   if (userExist) {
    throw new ApiError(409, "User with this email or username already exists");
   }
+  let coverImages; // Use `let` instead of `const` for reassignment
+  if (req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0) {
+   coverImages = req.files.coverImage[0].path; // Fix typo in variable name
+  }
+
 
   // Step 4: Create user object and save to database
   const user = await User.create({
    fullName,
    email,
    password,
-   username: userName.toLowerCase(),
+   username: username.toLowerCase(),
    avatar: avatarLocalPath, // Save local path instead of Cloudinary URL
    coverImage: coverImageLocalPath || "", // Optional cover image
   });
