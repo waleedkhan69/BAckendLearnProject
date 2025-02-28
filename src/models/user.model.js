@@ -57,12 +57,12 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
-// Method to check if password is correct
+
 userSchema.methods.isPasswordCorrect = async function (password) {
   return await bcrypt.compare(password, this.password);
 };
 
-// Method to generate access token
+
 userSchema.methods.generateAccessToken = function () {
   return jwt.sign(
     {

@@ -2,7 +2,7 @@ import express from "express";
 import { logoutUser, registerUser, loginUser, refreshToken } from "../controllers/user.controller.js";
 import { upload } from "../middelwares/multer.middleware.js";
 import { verifyJWT } from "../middelwares/auth.midleware.js";
-import refreshToken 
+
 
 const router = express.Router();
 
