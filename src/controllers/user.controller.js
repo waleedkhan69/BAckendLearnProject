@@ -200,6 +200,8 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user?._id)
 
   const isPasswordCorrect = await user.isPasswordCorrect(OldPassword)
+  console.log("isPasswordCorrect", isPasswordCorrect);
+
 
   if (!isPasswordCorrect) {
     throw new ApiError(401, "Invalid password")
@@ -228,8 +230,8 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
     req.user?._id,
     {
       $set: {
-        fullName: fullName
-email: email
+        fullName: fullName,
+        email: email
       }
     },
     { new: true }
@@ -240,7 +242,7 @@ email: email
     .json(200, user, "user account update successfully")
 })
 const updateUserAvatar = asyncHandler(async (req, res) => {
-  cont avatarLocalPath = req.file?.path
+  const avatarLocalPath = req.file?.path
   if (!avatarLocalPath) {
     throw new ApiError(400, "avatar file is missing")
 
@@ -253,26 +255,26 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
     await User.findByIdAndUpdate(
       req.user?._id,
       {
-{
+
         $set: {
           avatar: avatar.url
-        }
-      }
+        },
+
       },
-  { new: true }
+      { new: true }
     ).select("-password")
-return res.status(200)
-  .json(
-    new ApiResponse(200, user, "coverImage update Successfully ")
-  )
+    return res.status(200)
+      .json(
+        new ApiResponse(200, user, "coverImage update Successfully ")
+      )
 
   }
 })
 
 const updateUserCoverImage = asyncHandler(async (req, res) => {
-  cont coverImageLocalPath = req.file?.path
+  const coverImageLocalPath = req.file?.path
   if (!coverImageLocalPath) {
-    throw new ApiError(400, "avatar file is missing")
+    throw new ApiError(400, "avatar file is missing please checkout")
 
     const coverImage = await uploadOnCloudinary(coverImageLocalPath)
 
@@ -283,18 +285,18 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
     const user = await User.findByIdAndUpdate(
       req.user?._id,
       {
-{
+
         $set: {
           avatar: avatar.url
         }
-      }
+
       },
-  { new: true }
+      { new: true }
     ).select("-password")
-return res.status(200)
-  .json(
-    new ApiResponse(200, user, "coverImage update Successfully ")
-  )
+    return res.status(200)
+      .json(
+        new ApiResponse(200, user, "coverImage update Successfully ")
+      )
 
   }
 })
