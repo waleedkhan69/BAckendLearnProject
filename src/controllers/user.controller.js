@@ -6,6 +6,7 @@ import jwt from "jsonwebtoken"
 
 
 import fs from "fs";
+import { lookup } from "dns";
 
 const generateAndAccessToken = async (userId) => {
   try {
@@ -301,4 +302,64 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
   }
 })
 
-export { registerUser, loginUser, refreshAccessToken as refreshToken, logoutUser, getCurrentUser, changeCurrentPassword, updateAccountDetails, updateUserAvatar, updateUserCoverImage };
+const getUserChannelProfile = asyncHandler(async (req, res) => {
+  const { username } = req.params;
+  if (!username.trim()) {
+    throw new ApiError(400, "user is missing")
+  }
+  const channel = await User.aggregate([
+    {
+      $match: {
+        username: username.toLowerCase()
+      },
+    },
+    {
+      $lookup: {
+        from: "subscription",
+        foreignField: "channel",
+        localField: "_id",
+        as: "subscription"
+      }
+    },
+    {
+      $lookup: {
+        from: "subscription",
+        foreignField: "channel",
+        localField: "_id",
+        as: "subscriptions"
+      }
+    },
+    {
+      $addFields: {
+        subscriberCount: { $size: "$subscriptions" },
+        ChannelSubscriptionToCount: { $size: "SubscribTo" },
+        isSubscrib: {
+          $cond: {
+            if: { $in: [req?.user_id, "$subscriptions.subscriber"] },
+            then: true,
+            else: false
+          }
+        }
+      }
+    },
+    {
+      $project: {
+        fullName: 1,
+        subscriberCount: 1,
+        channelsSubscribToCount: 1,
+        isSubscrib: 1,
+        coverImage: 1,
+        avatar: 1,
+        email: 1
+      }
+    }
+  ])
+
+  if (!channel.length) {
+    throw new ApiError(400, "channel dose not exist")
+  }
+  return res.status(200)
+    .json(new ApiResponse(200, channel[0], "user is fetched is successfully"))
+})
+
+export { registerUser, loginUser, refreshAccessToken as refreshToken, logoutUser, getCurrentUser, changeCurrentPassword, updateAccountDetails, updateUserAvatar, updateUserCoverImage, getUserChannelProfile };
