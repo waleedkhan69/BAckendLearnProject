@@ -7,6 +7,7 @@ import jwt from "jsonwebtoken"
 
 import fs from "fs";
 import { lookup } from "dns";
+import { pipeline } from "stream";
 
 const generateAndAccessToken = async (userId) => {
   try {
@@ -361,5 +362,42 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
   return res.status(200)
     .json(new ApiResponse(200, channel[0], "user is fetched is successfully"))
 })
+const getWatchHistory = asyncHandler(async (req, res) => {
+  const user = await User.aggregate([
+    {
+      $match: {
+        _id: new mongoose.Types.ObjectId(req.user._id)
+      }
+    },
+    {
+      $lookup: {
+        from: "Vedio",
+        localField: "watchHistory",
+        foreignField: "_id",
+        as: "watchHistory",
+        pipeline: [
+          {
+            $lookup: {
+              from: "users",
+              localField: "owner",
+              foreignField: "_id",
+              as: "owner",
+              pipeline: [
+                {
+                  $project: {
+                    username: 1,
+                    fullname: 1,
+                    avatar: 1
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ])
+})
 
-export { registerUser, loginUser, refreshAccessToken as refreshToken, logoutUser, getCurrentUser, changeCurrentPassword, updateAccountDetails, updateUserAvatar, updateUserCoverImage, getUserChannelProfile };
+
+export { registerUser, loginUser, refreshAccessToken as refreshToken, logoutUser, getCurrentUser, changeCurrentPassword, updateAccountDetails, updateUserAvatar, updateUserCoverImage, getUserChannelProfile, getWatchHistory };
