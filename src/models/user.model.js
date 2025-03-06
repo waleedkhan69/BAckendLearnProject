@@ -44,7 +44,11 @@ const userSchema = new Schema(
       trim: true,
     },
     refreshToken: {
-      type: String, // Corrected typo
+      type: String,
+    },
+
+    generateAccessToken: {
+      type: String,
     },
   },
   { timestamps: true }
@@ -71,19 +75,19 @@ userSchema.methods.generateAccessToken = function () {
       username: this.username,
       fullName: this.fullName,
     },
-    process.env.ACCESS_TOKEN_SECRET, // Add your secret key here
-    { expiresIn: process.env.ACCESS_TOKEN_EXPIRY } // Add expiry time here
+    process.env.ACCESS_TOKEN_SECRET,
+    { expiresIn: process.env.ACCESS_TOKEN_EXPIRY }
   );
 };
 
-// Method to generate refresh token
+
 userSchema.methods.generateRefreshToken = function () {
   return jwt.sign(
     {
       _id: this._id,
     },
-    process.env.REFRESH_TOKEN_SECRET, // Add your secret key here
-    { expiresIn: process.env.REFRESH_TOKEN_EXPIRY } // Add expiry time here
+    process.env.REFRESH_TOKEN_SECRET,
+    { expiresIn: process.env.REFRESH_TOKEN_EXPIRY }
   );
 };
 

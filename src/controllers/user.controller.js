@@ -5,28 +5,46 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken"
 
 
+
 import fs from "fs";
 import { lookup } from "dns";
 import { pipeline } from "stream";
 
 const generateAndAccessToken = async (userId) => {
   try {
+    console.log("Received userId:", userId);
     const user = await User.findById(userId);
     if (!user) {
+      console.log("User not found", userId);
       throw new ApiError(404, "User not found");
     }
 
-    const accessToken = user.generateAndAccessToken();
-    const refreshToken = user.generateRefreshToken();
+    console.log("User object:", user);
+
+    if (!user.generateAndAccessToken || !user.generateRefreshToken) {
+      console.log("Error: Methods not found in user object");
+      throw new ApiError(500, "Token generation methods missing in User model");
+    }
+
+    const accessToken = await user.generateAccessToken();
+    console.log("Generated access token:", accessToken);
+
+    const refreshToken = await user.generateRefreshToken();
+    console.log("Generated refresh token:", refreshToken);
 
     user.refreshToken = refreshToken;
+    console.log("Saving user with new refresh token...");
     await user.save({ validateBeforeSave: false });
+    console.log("User saved successfully");
 
     return { refreshToken, accessToken };
   } catch (error) {
+    console.log("Error while generating the token:", error);
     throw new ApiError(500, "Something went wrong while generating the tokens");
   }
 };
+
+
 
 const registerUser = asyncHandler(async (req, res) => {
   try {
@@ -89,7 +107,7 @@ const registerUser = asyncHandler(async (req, res) => {
 const loginUser = asyncHandler(async (req, res) => {
   const { username, email, password } = req.body;
 
-  if (!(username && email)) {
+  if ((!username && !email)) {
     throw new ApiError(400, "Email or username is required");
   }
 
@@ -107,7 +125,7 @@ const loginUser = asyncHandler(async (req, res) => {
     throw new ApiError(401, "Incorrect password. Please enter the valid password");
   }
 
-  const { accessToken, refreshToken } = await generateAndAccessToken(user._id);
+  const { accessToken, refreshToken } = await generateAccessToken(user._id);
 
   const loggedInUser = await User.findById(user._id).select(
     "-password -refreshToken"
@@ -169,7 +187,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
       secure: true
     }
 
-    const { accessToken, newrefreshToken } = await generateAndAccessToken(user._id)
+    const { accessToken, newrefreshToken } = await generateAccessToken(user._id)
 
     return res
       .status(200)
