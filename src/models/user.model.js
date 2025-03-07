@@ -47,14 +47,14 @@ const userSchema = new Schema(
       type: String,
     },
 
-    generateAccessToken: {
-      type: String,
-    },
+    // generateAccessToken: {
+    //   type: String,
+    // },
   },
   { timestamps: true }
 );
 
-// Hash password before saving
+
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
   this.password = await bcrypt.hash(this.password, 10);

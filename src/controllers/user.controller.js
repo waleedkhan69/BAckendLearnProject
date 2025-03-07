@@ -10,34 +10,15 @@ import fs from "fs";
 import { lookup } from "dns";
 import { pipeline } from "stream";
 
-const generateAndAccessToken = async (userId) => {
+const generateAccessAndRefreshToken = async (userId) => {
   try {
     console.log("Received userId:", userId);
     const user = await User.findById(userId);
-    if (!user) {
-      console.log("User not found", userId);
-      throw new ApiError(404, "User not found");
-    }
-
-    console.log("User object:", user);
-
-    if (!user.generateAndAccessToken || !user.generateRefreshToken) {
-      console.log("Error: Methods not found in user object");
-      throw new ApiError(500, "Token generation methods missing in User model");
-    }
-
     const accessToken = await user.generateAccessToken();
-    console.log("Generated access token:", accessToken);
-
     const refreshToken = await user.generateRefreshToken();
-    console.log("Generated refresh token:", refreshToken);
-
     user.refreshToken = refreshToken;
-    console.log("Saving user with new refresh token...");
     await user.save({ validateBeforeSave: false });
-    console.log("User saved successfully");
-
-    return { refreshToken, accessToken };
+    return { accessToken, refreshToken }
   } catch (error) {
     console.log("Error while generating the token:", error);
     throw new ApiError(500, "Something went wrong while generating the tokens");
@@ -125,7 +106,7 @@ const loginUser = asyncHandler(async (req, res) => {
     throw new ApiError(401, "Incorrect password. Please enter the valid password");
   }
 
-  const { accessToken, refreshToken } = await generateAccessToken(user._id);
+  const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user._id);
 
   const loggedInUser = await User.findById(user._id).select(
     "-password -refreshToken"
@@ -187,7 +168,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
       secure: true
     }
 
-    const { accessToken, newrefreshToken } = await generateAccessToken(user._id)
+    const { accessToken, newrefreshToken } = await generateAccessAndRefreshToken(user._id)
 
     return res
       .status(200)
