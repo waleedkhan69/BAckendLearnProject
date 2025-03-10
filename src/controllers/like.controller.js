@@ -5,7 +5,7 @@ import { asyncHandler } from "../utils/asyncHandler";
 import mongoose, { isValidObjectId } from "mongoose";
 
 
-const toggleVideoKike = asyncHandler(async (req, res) => {
+const toggleVideoLike = asyncHandler(async (req, res) => {
  const { VideoId } = req.params
 
 })
@@ -17,10 +17,14 @@ const toggleCommentLike = asyncHandler(async (req, res) => {
 const toggleTweetLike = asyncHandler(async (req, res) => {
  const { tweetId } = req.params
 })
-const gteVideoLike = asyncHandler(async (req, res) => {
+const getVideoLike = asyncHandler(async (req, res) => {
  const { videoId } = req.params
 })
 
 export {
+ toggleCommentLike,
+ toggleTweetLike,
+ toggleVideoLike,
+ getVideoLike
 
 }
