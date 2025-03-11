@@ -13,10 +13,10 @@ const toggleVideoLike = asyncHandler(async (req, res) => {
  const existingLike = await Likes.findOne({ video: VideoId, likeBy: userId })
  if (existingLike) {
   await Likes.findByIdAndDelete(existingLike._id)
-  return res.status(200).json(new ApiResponse(200, "Like remove successfully", {}))
+  return res.status(200).json(new ApiResponse(200, "Like remove successfully ", {}))
  }
  const newLike = Likes.create({ video: VideoId, likeBy: userId })
- return res.status(200).json(new ApiResponse(200, "Like Added successfully"))
+ return res.status(200).json(new ApiResponse(200, "Like Add successfully"))
 })
 
 const toggleCommentLike = asyncHandler(async (req, res) => {

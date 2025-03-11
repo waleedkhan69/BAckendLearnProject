@@ -4,6 +4,7 @@ import cors from "cors";
 import express from "express";
 import { upload } from "./middelwares/multer.middleware.js";
 import { registerUser } from "./controllers/user.controller.js";
+import Likeroute from "./routes/Likeroutes.js"
 
 const app = express();
 
@@ -24,7 +25,12 @@ app.post('/register', upload.fields([
 ]), registerUser);
 
 
-
-app.use("/api/v1/users", router);
+app.use("/api/v1/")
+app.use("/api/v1/", router);
+app.use("/api/likes", Likeroute)
+app.use("/api/likes/video/:videoId", Likeroute)
+app.use("/api/likes/comment/:commentId", Likeroute)
+app.use("/api/likes/tweet/:tweetId ", Likeroute)
+app.use("/api/likes/vedio/:videoId", Likeroute)
 
 export { app };
